@@ -20,3 +20,8 @@ api_login:
     path: /api/login
     controller: App\Controller\UserController::login
     methods: POST
+
+api_create_appointment:
+    path: /api/appointment
+    controller: App\Controller\AppointmentController::createAppointment
+    methods: POST
