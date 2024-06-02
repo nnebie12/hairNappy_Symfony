@@ -10,6 +10,3 @@ nelmio_cors:
         '^/api/':
             allow_origin: ['http://127.0.0.1:5501']
             allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-            
-            
-

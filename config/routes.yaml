@@ -6,10 +6,17 @@ kernel:
     resource: ../src/Kernel.php
     type: annotation
 
+app_register:
+    path: /register
+    controller: App\Controller\UserController::register
+    methods: [GET, POST]
+
 api_signup:
     path: /api/signup
     controller: App\Controller\UserController::signup
-    methods: [POST]
+    methods: POST
 
-api_login_check:
-    path: /api/login_check
+api_login:
+    path: /api/login
+    controller: App\Controller\UserController::login
+    methods: POST

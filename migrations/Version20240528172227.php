@@ -20,9 +20,9 @@ final class Version20240528172227 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // Permettre les valeurs NULL pour certaines colonnes
-        $this->addSql('ALTER TABLE user MODIFY entreprise VARCHAR(255) DEFAULT NULL');
-        $this->addSql('ALTER TABLE user MODIFY siret VARCHAR(255) DEFAULT NULL');
-        $this->addSql('ALTER TABLE user MODIFY genre VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE user MODIFY entreprise VARCHAR(255) NOT NULL');
+        $this->addSql('ALTER TABLE user MODIFY siret VARCHAR(255) NOT NULL');
+        $this->addSql('ALTER TABLE user MODIFY genre VARCHAR(255) NOT NULL');
         $this->addSql('ALTER TABLE user MODIFY date_naissance VARCHAR(255) NOT NULL');
     }
 
