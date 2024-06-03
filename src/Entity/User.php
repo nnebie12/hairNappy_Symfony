@@ -3,6 +3,10 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection; 
+use Doctrine\Common\Collections\Collection; 
+
+
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -52,6 +56,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: "boolean", nullable: true)]
     private ?bool $newsletter = null;
+
+    #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private Collection $appointment;
+
+    public function __construct()
+    {
+        $this->appointment = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -209,6 +221,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNewsletter(?bool $newsletter): static
     {
         $this->newsletter = $newsletter;
+        return $this;
+    }
+
+    public function getAppointments(): Collection
+    {
+        return $this->appointments;
+    }
+
+    public function addAppointment(Appointment $appointment): static
+    {
+        if (!$this->appointments->contains($appointment)) {
+            $this->appointments[] = $appointment;
+            $appointment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAppointment(Appointment $appointment): static
+    {
+        if ($this->appointments->removeElement($appointment)) {
+            if ($appointment->getUser() === $this) {
+                $appointment->setUser(null);
+            }
+        }
+
         return $this;
     }
 }

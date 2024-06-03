@@ -75,4 +75,54 @@ class UserController extends AbstractController
 
         return new JsonResponse(['status' => 'success', 'token' => $token], JsonResponse::HTTP_OK);
     }
+
+    #[Route('/api/user', name: 'api_get_user', methods: ['GET'])]
+    public function getUserDetails(): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['status' => 'error', 'message' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        return $this->json($user);
+    }
+
+    #[Route('/api/user', name: 'api_update_user', methods: ['PUT'])]
+    public function updateUser(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['status' => 'error', 'message' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $form = $this->createForm(RegistrationFormType::class, $user, ['csrf_protection' => false]);
+        $form->submit($data, false);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+            return new JsonResponse(['status' => 'success', 'message' => 'User updated']);
+        }
+
+        $errors = [];
+        foreach ($form->getErrors(true) as $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        return new JsonResponse(['status' => 'error', 'errors' => $errors], Response::HTTP_BAD_REQUEST);
+    }
+
+    #[Route('/api/user', name: 'api_delete_user', methods: ['DELETE'])]
+    public function deleteUser(): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['status' => 'error', 'message' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['status' => 'success', 'message' => 'User deleted']);
+    }
 }
