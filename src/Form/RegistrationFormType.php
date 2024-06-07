@@ -11,6 +11,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+
 
 
 class RegistrationFormType extends AbstractType
@@ -22,7 +24,9 @@ class RegistrationFormType extends AbstractType
             ->add('password', PasswordType::class)
             ->add('nom', TextType::class)
             ->add('prenom', TextType::class)
-            ->add('ville', TextType::class)
+            ->add('ville', TextType::class, [
+                'required' => true,
+            ])
             ->add('pays', TextType::class)
             ->add('numeroDeTelephone', TextType::class)
             ->add('codePostale', TextType::class)
@@ -37,6 +41,14 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('newsletter', CheckboxType::class, [
                 'required' => false,
+            ])
+            ->add('roles', ChoiceType::class, [
+                'choices' => [
+                    'User' => 'ROLE_USER',
+                    'Admin' => 'ROLE_ADMIN',
+                ],
+                'multiple' => true,
+                'expanded' => true,
             ]);
 
     }

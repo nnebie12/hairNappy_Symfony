@@ -1,5 +1,8 @@
 <?php
 
+ini_set('zend.assertions', -1);
+ini_set('assert.exception', 0);
+
 use App\Kernel;
 
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
