@@ -1,4 +1,6 @@
 <?php
+// src/Controller/AppointmentController.php
+
 namespace App\Controller;
 
 use App\Entity\Appointment;
@@ -28,17 +30,21 @@ class AppointmentController extends AbstractController
         $form = $this->createForm(AppointmentFormType::class, $appointment);
         $form->submit($data);
 
+        // Log the heure data to ensure it's being processed correctly
+        $heure = $appointment->getHeure();
+        error_log('Heure data: ' . ($heure ? $heure->format('H:i') : 'null'));
+
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $this->getUser(); 
             if (!$user) {
-                return new JsonResponse(['status' => 'error', 'message' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
+                return $this->createCorsResponse(new JsonResponse(['status' => 'error', 'message' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED));
             }
 
             $appointment->setUser($user);
             $this->entityManager->persist($appointment);
             $this->entityManager->flush();
 
-            return new JsonResponse(['status' => 'success', 'message' => 'Appointment created!'], Response::HTTP_CREATED);
+            return $this->createCorsResponse(new JsonResponse(['status' => 'success', 'message' => 'Appointment created!'], Response::HTTP_CREATED));
         }
 
         $errors = [];
@@ -46,25 +52,32 @@ class AppointmentController extends AbstractController
             $errors[] = $error->getMessage();
         }
 
-        return new JsonResponse(['status' => 'error', 'errors' => $errors], Response::HTTP_BAD_REQUEST);
+        return $this->createCorsResponse(new JsonResponse(['status' => 'error', 'errors' => $errors], Response::HTTP_BAD_REQUEST));
     }
 
-    #[Route('/api/appointments', name: 'api_get_appointments', methods: ['GET'])]
-    public function getAppointments(): JsonResponse
+    #[Route('/api/appointments', name: 'api_my_appointments', methods: ['GET'])]
+    public function getMyAppointments(): JsonResponse
     {
-        $appointments = $this->entityManager->getRepository(Appointment::class)->findAll();
-        return $this->json($appointments);
-    }
-
-    #[Route('/api/appointments/{id}', name: 'api_get_appointment', methods: ['GET'])]
-    public function getAppointment(int $id): JsonResponse
-    {
-        $appointment = $this->entityManager->getRepository(Appointment::class)->find($id);
-        if (!$appointment) {
-            return new JsonResponse(['status' => 'error', 'message' => 'Appointment not found'], Response::HTTP_NOT_FOUND);
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['status' => 'error', 'message' => 'User not authenticated'], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        return $this->json($appointment);
+        $appointments = $this->entityManager->getRepository(Appointment::class)->findBy(['user' => $user]);
+
+        // Manually format the data
+        $data = [];
+        foreach ($appointments as $appointment) {
+            $data[] = [
+                'id' => $appointment->getId(),
+                'date' => $appointment->getDate(),
+                'heure' => $appointment->getHeure() ? $appointment->getHeure()->format('H:i') : null,
+                'message' => $appointment->getMessage(),
+                'user' => $appointment->getUser()->getId()
+            ];
+        }
+
+        return new JsonResponse($data);
     }
 
     #[Route('/api/appointments/{id}', name: 'api_update_appointment', methods: ['PUT'])]
@@ -72,7 +85,7 @@ class AppointmentController extends AbstractController
     {
         $appointment = $this->entityManager->getRepository(Appointment::class)->find($id);
         if (!$appointment) {
-            return new JsonResponse(['status' => 'error', 'message' => 'Appointment not found'], Response::HTTP_NOT_FOUND);
+            return $this->createCorsResponse(new JsonResponse(['status' => 'error', 'message' => 'Appointment not found'], Response::HTTP_NOT_FOUND));
         }
 
         $data = json_decode($request->getContent(), true);
@@ -81,7 +94,7 @@ class AppointmentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
-            return new JsonResponse(['status' => 'success', 'message' => 'Appointment updated']);
+            return $this->createCorsResponse(new JsonResponse(['status' => 'success', 'message' => 'Appointment updated']));
         }
 
         $errors = [];
@@ -89,7 +102,7 @@ class AppointmentController extends AbstractController
             $errors[] = $error->getMessage();
         }
 
-        return new JsonResponse(['status' => 'error', 'errors' => $errors], Response::HTTP_BAD_REQUEST);
+        return $this->createCorsResponse(new JsonResponse(['status' => 'error', 'errors' => $errors], Response::HTTP_BAD_REQUEST));
     }
 
     #[Route('/api/appointments/{id}', name: 'api_delete_appointment', methods: ['DELETE'])]
@@ -97,12 +110,19 @@ class AppointmentController extends AbstractController
     {
         $appointment = $this->entityManager->getRepository(Appointment::class)->find($id);
         if (!$appointment) {
-            return new JsonResponse(['status' => 'error', 'message' => 'Appointment not found'], Response::HTTP_NOT_FOUND);
+            return $this->createCorsResponse(new JsonResponse(['status' => 'error', 'message' => 'Appointment not found'], Response::HTTP_NOT_FOUND));
         }
 
         $this->entityManager->remove($appointment);
         $this->entityManager->flush();
 
-        return new JsonResponse(['status' => 'success', 'message' => 'Appointment deleted']);
+        return $this->createCorsResponse(new JsonResponse(['status' => 'success', 'message' => 'Appointment deleted']));
+    }
+
+    private function createCorsResponse(JsonResponse $response): JsonResponse
+    {
+        $response->headers->set('Access-Control-Allow-Origin', 'http://127.0.0.1:5501');
+        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        return $response;
     }
 }

@@ -16,53 +16,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
     #[ORM\Column]
     private array $roles = [];
 
     #[ORM\Column]
+    #[Groups(['user:write'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $ville = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $pays = null;
 
     #[ORM\Column(length: 15)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $numeroDeTelephone = null;
 
     #[ORM\Column(length: 10)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $codePostale = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $entreprise = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $siret = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $genre = null;
 
     #[ORM\Column(type: "boolean", nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
     private ?bool $newsletter = null;
 
     #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
-    private Collection $appointment;
-
+    #[Groups(['user:read'])]
+    private Collection $appointments;
     public function __construct()
     {
-        $this->appointment = new ArrayCollection();
+        $this->appointments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -224,6 +237,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    #[Groups(['user:read', 'appointment:read'])]
     public function getAppointments(): Collection
     {
         return $this->appointments;

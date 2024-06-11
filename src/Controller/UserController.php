@@ -29,8 +29,8 @@ class UserController extends AbstractController
     #[Route('/api/signup', name: 'api_signup', methods: ['POST'])]
     public function signup(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-
+        $data = $serializer->normalize($user, null, ['groups' => 'user:read']);
+        
         $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
         if ($existingUser) {
             return new JsonResponse(['status' => 'error', 'errors' => ['Email already exists.']], Response::HTTP_BAD_REQUEST);

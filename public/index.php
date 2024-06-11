@@ -1,7 +1,11 @@
 <?php
 
-ini_set('zend.assertions', -1);
-ini_set('assert.exception', 0);
+ini_set('zend.assertions', '1');
+ini_set('assert.exception', '1');
+ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
+ini_set('display_errors', 'Off');
+
+
 
 use App\Kernel;
 

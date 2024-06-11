@@ -6,6 +6,8 @@ use App\Entity\Appointment;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TimeType;
+
 
 class AppointmentFormType extends AbstractType
 {
@@ -13,7 +15,13 @@ class AppointmentFormType extends AbstractType
     {
         $builder
             ->add('date')
-            ->add('heure')
+            ->add('heure', TimeType::class, [
+                'widget' => 'single_text',
+                'html5' => false,
+                'required' => false,
+                'attr' => ['class' => 'js-timepicker'],
+                'input' => 'datetime', 
+            ])
             ->add('message');
     }
 

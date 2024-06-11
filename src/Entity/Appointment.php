@@ -15,15 +15,16 @@ class Appointment
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $date = null;
 
+    #[ORM\Column(type: 'time', nullable: true)]
+    private ?\DateTimeInterface $heure = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $message = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $heure = null;
-
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'appointment')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'appointments')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
+
 
     public function getId(): ?int
     {
@@ -54,12 +55,12 @@ class Appointment
         return $this;
     }
 
-    public function getHeure(): ?string
+    public function getHeure(): ?\DateTimeInterface
     {
         return $this->heure;
     }
 
-    public function setHeure(?string $heure): static
+    public function setHeure(?\DateTimeInterface $heure): self
     {
         $this->heure = $heure;
 
@@ -71,10 +72,9 @@ class Appointment
         return $this->user;
     }
 
-    public function setUser(?User $user): static
+    public function setUser(?User $user): self
     {
         $this->user = $user;
-
         return $this;
     }
 }
