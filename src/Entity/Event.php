@@ -1,19 +1,19 @@
 <?php
 namespace App\Entity;
 
-use App\Repository\AppointmentRepository;
+use App\Repository\EventRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: AppointmentRepository::class)]
-class Appointment
+#[ORM\Entity(repositoryClass: EventRepository::class)]
+class Event
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $date = null;
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(type: 'time', nullable: true)]
     private ?\DateTimeInterface $heure = null;
@@ -21,7 +21,11 @@ class Appointment
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $message = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'appointments')]
+    #[ORM\ManyToOne(targetEntity: Salon::class, inversedBy: 'salons')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Salon $salon = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
@@ -31,12 +35,12 @@ class Appointment
         return $this->id;
     }
 
-    public function getDate(): ?string
+    public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(?string $date): static
+    public function setDate(?\DateTimeInterface $date): static
     {
         $this->date = $date;
 
@@ -64,6 +68,17 @@ class Appointment
     {
         $this->heure = $heure;
 
+        return $this;
+    }
+
+    public function getSalon(): ?Salon
+    {
+        return $this->salon;
+    }
+
+    public function setSalon(?Salon $salon): self
+    {
+        $this->salon = $salon;
         return $this;
     }
 

@@ -21,7 +21,7 @@ api_login:
     controller: App\Controller\UserController::login
     methods: POST
 
-api_create_appointment:
-    path: /api/appointment
-    controller: App\Controller\AppointmentController::createAppointment
+api_create_event:
+    path: /api/event
+    controller: App\Controller\EventController::createEvent
     methods: POST
